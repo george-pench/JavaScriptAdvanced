@@ -3,10 +3,14 @@ const Dotenv = require('dotenv-webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
-  entry: './src/index.js',
+  entry: {
+    main: './src/index.js',
+    currency: './src/Task01_FreeCurrencyAPI/currencyApi.js',
+    poke: './src/Task02_PokeAPI/pokeApi.js'
+  },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js',
+    filename: '[name].bundle.js',
     publicPath: '/'
   },
   mode: 'development',
@@ -37,6 +41,10 @@ module.exports = {
       template: './src/currency.html',
       filename: 'currency.html'
     }),
+    new HtmlWebpackPlugin({
+      template: './src/poke.html',
+      filename: 'poke.html'
+    }),
     new Dotenv()
   ],
   devServer: {
@@ -46,6 +54,7 @@ module.exports = {
         changeOrigin: true,
         pathRewrite: { '^/api': '/v3' }
       }
-    }
+    },
+    hot: false
   }
 }

@@ -39,5 +39,13 @@
         </tbody>
     </table>
   </div>
+  <script src="currency.bundle.js"></script>
+  <script>
+    if (window.currencyApi) {
+      document.addEventListener('DOMContentLoaded', window.currencyApi.initCurrencyApi);
+    } else {
+      console.error('currencyApi module is not loaded!');
+    }
+  </script>
 </body>
 </html>

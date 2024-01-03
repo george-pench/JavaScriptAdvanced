@@ -6,7 +6,34 @@
   <title>Poke API</title>
 </head>
 <body>
-  <div class="container">
+<div id="pokemon-container"></div>
+<div class="pokemon-modal" id="pokemon-modal" style="display: none;">
+  <div class="modal-content">
+    <span class="close" id="close-modal">&times;</span>
+    <h2 id="pokemon-name-modal"></h2>
+    <p id="pokemon-weight-modal"></p>
+    <p id="pokemon-height-modal"></p>
+    <p id="pokemon-base-experience-modal"></p>
+    <img id="pokemon-image-front-modal" src="" alt="">
+    <img id="pokemon-image-back-modal" src="" alt="">
+    <p id="pokemon-types-modal"></p>
+    <p id="pokemon-abilities-modal"></p>
+    <p id="pokemon-stats-modal"></p>
+    <p id="location-area-encounters-modal"></p>
   </div>
+</div>
+<div id="pagination-controls">
+  <button id="prev-button">Prev</button>
+  <span id="page-info"></span>
+  <button id="next-button">Next</button>
+</div>
+<script src="poke.bundle.js"></script>
+<script>
+  if (window.pokeApi) {
+    window.pokeApi.initPokeApi();
+  } else {
+    console.error('pokeApi module is not loaded!');
+  }
+</script>
 </body>
 </html>

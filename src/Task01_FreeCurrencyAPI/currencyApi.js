@@ -21,31 +21,44 @@ export function updateTableWithCurrencyData (date, currencyData) {
   const dateCell = row.insertCell()
   dateCell.textContent = date
 
-  Object.keys(currencyData).forEach(key => {
-    const value = currencyData[key].value
+  const headers = document.querySelectorAll('#currency-table thead th')
+
+  for (let i = 1; i < headers.length; i++) {
     const cell = row.insertCell()
-    cell.textContent = value.toFixed(2)
-  })
+    const currencyCode = headers[i].textContent
+    const currencyInfo = currencyData[currencyCode]
+    cell.textContent = currencyInfo ? currencyInfo.value.toFixed(2) : 'N/A'
+  }
 }
 
-document.getElementById('fetch-data').addEventListener('click', async () => {
-  const selectedDate = document.getElementById('date-picker').value
-  const selectedOptions = document.getElementById('currency-select').selectedOptions
-  const selectedCurrencies = Array.from(selectedOptions).map(opt => opt.value)
+export function initCurrencyApi () {
+  const fetchDataButton = document.getElementById('fetch-data')
 
-  if (selectedDate && selectedCurrencies.length > 0) {
-    try {
-      const data = await fetchCurrencyDataForDate(selectedDate, selectedCurrencies)
+  if (fetchDataButton) {
+    fetchDataButton.addEventListener('click', async () => {
+      const selectedDate = document.getElementById('date-picker').value
+      const selectedOptions = document.getElementById('currency-select').selectedOptions
+      const selectedCurrencies = Array.from(selectedOptions).map(opt => opt.value)
 
-      if (data && data.data) {
-        updateTableWithCurrencyData(selectedDate, data.data)
+      if (selectedDate && selectedCurrencies.length > 0) {
+        try {
+          const data = await fetchCurrencyDataForDate(selectedDate, selectedCurrencies)
+
+          if (data && data.data) {
+            updateTableWithCurrencyData(selectedDate, data.data)
+          } else {
+            console.error('No data returned for selected currencies and date!')
+          }
+        } catch (error) {
+          console.error('Error:', error)
+        }
       } else {
-        console.error('No data returned for selected currencies and date!')
+        alert('Please select a date and at least one currency!')
       }
-    } catch (error) {
-      console.error('Error fetching currency data:', error)
-    }
+    })
   } else {
-    alert('Please select a date and at least one currency!')
+    console.error('fetch-data button not found')
   }
-})
+}
+
+window.currencyApi = { initCurrencyApi }
