@@ -103,24 +103,6 @@ function capitalizeFirstLetter (str) {
 }
 
 const pokemonNames = ['Bulbasaur', 'Ivysaur', 'Venusaur', 'Charmander', 'Charmeleon', 'Charizard', 'Squirtle', 'Wartortle']
-/*
-export async function initPokeApi () {
-  const pokemonContainer = document.getElementById('pokemon-container')
-  pokemonContainer.innerHTML = ''
-
-  for (const name of pokemonNames) {
-    try {
-      const data = await fetchPokemonData(name)
-      if (data) {
-        displayPokemon(data)
-      }
-      console.log(data)
-    } catch (error) {
-      console.log(`Error fetching data for ${name}:`, error)
-    }
-  }
-}
-*/
 
 let currentPage = 0
 const itemsPerPage = 3
@@ -172,13 +154,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  document.getElementById('prev-button').addEventListener('click', () => {
-    changePage(-1)
-  })
+  const pokemonContainer = document.getElementById('pokemon-container')
 
-  document.getElementById('next-button').addEventListener('click', () => {
-    changePage(1)
-  })
+  if (pokemonContainer) {
+    initPokeApi()
+
+    document.getElementById('prev-button').addEventListener('click', () => {
+      changePage(-1)
+    })
+
+    document.getElementById('next-button').addEventListener('click', () => {
+      changePage(1)
+    })
+  }
 })
 
 window.pokeApi = { initPokeApi }
