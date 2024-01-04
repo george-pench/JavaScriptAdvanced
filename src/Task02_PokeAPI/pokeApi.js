@@ -169,4 +169,4 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 })
 
-window.pokeApi = { initPokeApi }
+// window.pokeApi = { initPokeApi }
