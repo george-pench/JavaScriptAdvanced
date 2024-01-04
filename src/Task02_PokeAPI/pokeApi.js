@@ -93,7 +93,7 @@ function showMoreInfo (pokemon) {
   document.getElementById('pokemon-image-back-modal').src = pokemon.sprites.back_default
   document.getElementById('pokemon-types-modal').textContent = 'Types: ' + pokemon.types.map(pt => pt.type.name).join(', ')
   document.getElementById('pokemon-abilities-modal').textContent = 'Abilities: ' + pokemon.abilities.map(pa => pa.ability.name).join(', ')
-  document.getElementById('pokemon-stats-modal').textContent = 'Stats: ' + pokemon.stats.map(ps => ps.stat.name).join(', ')
+  // document.getElementById('pokemon-stats-modal').textContent = 'Stats: ' + pokemon.stats.map(ps => ps.stat.name).join(', ')
   document.getElementById('location-area-encounters-modal').textContent = 'Location Area Encounters: ' + pokemon.location_area_encounters
   document.getElementById('pokemon-modal').style.display = 'block'
 }

@@ -61,4 +61,4 @@ export function initCurrencyApi () {
   }
 }
 
-// window.currencyApi = { initCurrencyApi }
+window.currencyApi = { initCurrencyApi }
