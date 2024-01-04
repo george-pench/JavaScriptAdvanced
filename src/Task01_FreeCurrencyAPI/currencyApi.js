@@ -1,8 +1,9 @@
+import { CURRENCY_API_URL } from '../api/apiUrls'
 export const apiKey = process.env.API_KEY
 
 export async function fetchCurrencyDataForDate (date, selectedCurrencies) {
   const currencies = selectedCurrencies.join(',')
-  const url = `https://api.currencyapi.com/v3/historical?apikey=${apiKey}&currencies=${encodeURIComponent(currencies)}&date=${date}`
+  const url = CURRENCY_API_URL(apiKey, currencies, date)
 
   try {
     const response = await fetch(url)

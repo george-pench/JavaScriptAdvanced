@@ -1,40 +1,13 @@
-export async function fetchPokemonData (pokemonName) {
+import { POKEMON_DETAILS_QUERY, POKEMON_FETCH_DATA_QUERY } from '../api/graphqlQueries.js'
+import { POKEMON_API_URL } from '../api/apiUrls'
+
+export async function fetchPokemonData () {
   const graphqlQuery = {
-    query: `
-      query getPokemonDetails($name: String!) {
-        pokemon(name: $name) {
-          name
-          weight
-          height
-          base_experience
-          sprites {
-            front_default
-            back_default
-          }
-          types {
-            type {
-              name
-            }
-          }
-          abilities {
-            ability {
-              name
-            }
-          }
-          stats {
-            stat {
-              name
-            }
-          }
-          location_area_encounters
-        }
-      }
-    `,
-    variables: { name: pokemonName.toLowerCase() }
+    query: POKEMON_FETCH_DATA_QUERY
   }
 
   try {
-    const response = await fetch('https://graphql-pokeapi.graphcdn.app/', {
+    const response = await fetch(POKEMON_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -44,16 +17,76 @@ export async function fetchPokemonData (pokemonName) {
 
     const data = await response.json()
 
-    if (data.data && data.data.pokemon) {
-      return data.data.pokemon
+    if (data.data && data.data.pokemons && data.data.pokemons.results) {
+      return data.data.pokemons.results
     } else {
-      console.error('No data returned for the specified Pokémon.')
+      console.error('No data returned from Pokémon API.')
       return null
     }
   } catch (error) {
     console.error('Error fetching Pokémon data:', error)
     return null
   }
+}
+
+const fetchPokemonDetailsQuery = POKEMON_DETAILS_QUERY
+
+async function fetchPokemonDetails (name) {
+  const graphqlQuery = {
+    query: fetchPokemonDetailsQuery,
+    variables: { name }
+  }
+
+  try {
+    const response = await fetch(POKEMON_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(graphqlQuery)
+    })
+    const data = await response.json()
+
+    if (data.data && data.data.pokemon) {
+      return data.data.pokemon
+    } else {
+      console.error('No detailed data returned from Pokémon API for', name)
+      return null
+    }
+  } catch (error) {
+    console.error('Error fetching detailed Pokémon data:', error)
+    return null
+  }
+}
+
+let pokemonNames = []
+let currentPage = 0
+const itemsPerPage = 3
+let totalPages
+
+export async function initPokeApi () {
+  pokemonNames = await fetchPokemonData()
+  totalPages = Math.ceil(pokemonNames.length / itemsPerPage)
+  updatePageContent()
+}
+
+function updatePageContent () {
+  const pokemonContainer = document.getElementById('pokemon-container')
+  pokemonContainer.innerHTML = ''
+
+  const pageItems = pokemonNames.slice(
+    currentPage * itemsPerPage,
+    (currentPage + 1) * itemsPerPage
+  )
+
+  pageItems.forEach(pokemon => {
+    displayPokemon(pokemon)
+  })
+
+  const pageInfo = document.getElementById('page-info')
+  pageInfo.textContent = `Page ${currentPage + 1} of ${totalPages}`
+  document.getElementById('prev-button').disabled = currentPage <= 0
+  document.getElementById('next-button').disabled = currentPage >= totalPages - 1
 }
 
 function displayPokemon (pokemon) {
@@ -66,7 +99,7 @@ function displayPokemon (pokemon) {
   nameElement.textContent = capitalizeFirstLetter(pokemon.name)
 
   const imageElement = document.createElement('img')
-  imageElement.src = pokemon.sprites.front_default
+  imageElement.src = pokemon.image
   imageElement.alt = `Sprite of ${pokemon.name}`
 
   const detailsElement = document.createElement('p')
@@ -80,7 +113,7 @@ function displayPokemon (pokemon) {
   container.appendChild(pokemonElement)
 
   pokemonElement.addEventListener('click', () => {
-    showMoreInfo(pokemon)
+    fetchAndDisplayPokemonDetails(pokemon.name)
   })
 }
 
@@ -88,13 +121,16 @@ function showMoreInfo (pokemon) {
   document.getElementById('pokemon-name-modal').textContent = capitalizeFirstLetter(pokemon.name)
   document.getElementById('pokemon-weight-modal').textContent = 'Weight: ' + pokemon.weight
   document.getElementById('pokemon-height-modal').textContent = 'Height: ' + pokemon.height
-  document.getElementById('pokemon-base-experience-modal').textContent = 'Base experience: ' + pokemon.base_experience
   document.getElementById('pokemon-image-front-modal').src = pokemon.sprites.front_default
   document.getElementById('pokemon-image-back-modal').src = pokemon.sprites.back_default
   document.getElementById('pokemon-types-modal').textContent = 'Types: ' + pokemon.types.map(pt => pt.type.name).join(', ')
   document.getElementById('pokemon-abilities-modal').textContent = 'Abilities: ' + pokemon.abilities.map(pa => pa.ability.name).join(', ')
-  // document.getElementById('pokemon-stats-modal').textContent = 'Stats: ' + pokemon.stats.map(ps => ps.stat.name).join(', ')
-  document.getElementById('location-area-encounters-modal').textContent = 'Location Area Encounters: ' + pokemon.location_area_encounters
+
+  let statsText = 'Stats: '
+  pokemon.stats.forEach(stat => { statsText += stat.base_stat + ', ' })
+  statsText = statsText.slice(0, -2)
+  document.getElementById('pokemon-stats-modal').textContent = statsText
+  document.getElementById('pokemon-base-experience-modal').textContent = 'Base experience: ' + pokemon.base_experience
   document.getElementById('pokemon-modal').style.display = 'block'
 }
 
@@ -102,41 +138,16 @@ function capitalizeFirstLetter (str) {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
-const pokemonNames = ['Bulbasaur', 'Ivysaur', 'Venusaur', 'Charmander', 'Charmeleon', 'Charizard', 'Squirtle', 'Wartortle']
-
-let currentPage = 0
-const itemsPerPage = 3
-const totalPages = Math.ceil(pokemonNames.length / itemsPerPage)
-
-export async function initPokeApi () {
-  const pokemonContainer = document.getElementById('pokemon-container')
-  const pageInfo = document.getElementById('page-info')
-  pokemonContainer.innerHTML = ''
-
-  const pageNames = pokemonNames.slice(
-    currentPage * itemsPerPage,
-    (currentPage + 1) * itemsPerPage
-  )
-
-  for (const name of pageNames) {
-    try {
-      const data = await fetchPokemonData(name)
-      if (data) {
-        displayPokemon(data)
-      }
-    } catch (error) {
-      console.error(`Error fetching data for ${name}:`, error)
-    }
-  }
-
-  pageInfo.textContent = `Page ${currentPage + 1} of ${totalPages}`
-  document.getElementById('prev-button').disabled = currentPage <= 0
-  document.getElementById('next-button').disabled = currentPage >= totalPages - 1
-}
-
 function changePage (step) {
   currentPage = Math.max(0, Math.min(currentPage + step, totalPages - 1))
-  initPokeApi()
+  updatePageContent()
+}
+
+async function fetchAndDisplayPokemonDetails (pokemonName) {
+  const pokemonDetails = await fetchPokemonDetails(pokemonName)
+  if (pokemonDetails) {
+    showMoreInfo(pokemonDetails)
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -168,5 +179,3 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   }
 })
-
-// window.pokeApi = { initPokeApi }
