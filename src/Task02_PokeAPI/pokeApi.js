@@ -1,9 +1,11 @@
 import { POKEMON_DETAILS_QUERY, POKEMON_FETCH_DATA_QUERY } from '../api/graphqlQueries.js'
 import { POKEMON_API_URL } from '../api/apiUrls'
 
+const pokemonsLimit = 30
+
 export async function fetchPokemonData () {
   const graphqlQuery = {
-    query: POKEMON_FETCH_DATA_QUERY
+    query: POKEMON_FETCH_DATA_QUERY(pokemonsLimit)
   }
 
   try {

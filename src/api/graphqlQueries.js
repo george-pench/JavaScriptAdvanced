@@ -1,6 +1,6 @@
-export const POKEMON_FETCH_DATA_QUERY = `
+export const POKEMON_FETCH_DATA_QUERY = (limit = 20) => `
 query {
-  pokemons(limit: 20) {
+  pokemons(limit: ${limit}) {
     results {
       name
       image
