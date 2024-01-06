@@ -1,6 +1,20 @@
+/*
 export const POKEMON_FETCH_DATA_QUERY = (limit = 20) => `
 query {
   pokemons(limit: ${limit}) {
+    results {
+      name
+      image
+    }
+  }
+}
+`
+*/
+export const POKEMON_FETCH_DATA_QUERY = (limit = 20, offset = 0) => `
+query {
+  pokemons(limit: ${limit}, offset: ${offset}) {
+    count
+    nextOffset
     results {
       name
       image

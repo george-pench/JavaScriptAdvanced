@@ -1,11 +1,11 @@
 import { POKEMON_DETAILS_QUERY, POKEMON_FETCH_DATA_QUERY } from '../api/graphqlQueries.js'
 import { POKEMON_API_URL } from '../api/apiUrls'
 
-const pokemonsLimit = 30
+const pokemonsLimit = 10
 
-export async function fetchPokemonData () {
+export async function fetchPokemonData (offset = 0) {
   const graphqlQuery = {
-    query: POKEMON_FETCH_DATA_QUERY(pokemonsLimit)
+    query: POKEMON_FETCH_DATA_QUERY(pokemonsLimit, offset)
   }
 
   try {
@@ -19,7 +19,8 @@ export async function fetchPokemonData () {
 
     const data = await response.json()
 
-    if (data.data && data.data.pokemons && data.data.pokemons.results) {
+    if (data.data && data.data.pokemons) {
+      totalPages = Math.ceil(data.data.pokemons.count / itemsPerPage)
       return data.data.pokemons.results
     } else {
       console.error('No data returned from Pokémon API.')
@@ -61,29 +62,27 @@ async function fetchPokemonDetails (name) {
   }
 }
 
-let pokemonNames = []
+// let pokemonNames = []
 let currentPage = 0
-const itemsPerPage = 3
+const itemsPerPage = 10
 let totalPages
 
 export async function initPokeApi () {
-  pokemonNames = await fetchPokemonData()
-  totalPages = Math.ceil(pokemonNames.length / itemsPerPage)
+  currentPage = 0
   updatePageContent()
 }
 
-function updatePageContent () {
+async function updatePageContent () {
+  const offset = currentPage * itemsPerPage
+  const pageItems = await fetchPokemonData(offset)
   const pokemonContainer = document.getElementById('pokemon-container')
   pokemonContainer.innerHTML = ''
 
-  const pageItems = pokemonNames.slice(
-    currentPage * itemsPerPage,
-    (currentPage + 1) * itemsPerPage
-  )
-
-  pageItems.forEach(pokemon => {
-    displayPokemon(pokemon)
-  })
+  if (pageItems) {
+    pageItems.forEach(pokemon => {
+      displayPokemon(pokemon)
+    })
+  }
 
   const pageInfo = document.getElementById('page-info')
   pageInfo.textContent = `Page ${currentPage + 1} of ${totalPages}`
