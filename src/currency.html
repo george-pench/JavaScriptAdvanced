@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Currency API</title>
+</head>
+<body>
+  <div class="container">
+    <label for="date-picker">Select Date:</label>
+    <input type="date" id="date-picker">
+    <br>
+    <label for="currency-select">Select Currencies:</label>
+    <br>
+    <select id="currency-select" multiple>
+      <option value="USD">USD</option>
+      <option value="EUR">EUR</option>
+      <option value="CAD">CAD</option>
+      <option value="BGN">BGN</option>
+      <option value="JPY">JPY</option>
+      <option value="GBP">GBP</option>
+    </select>
+    <br>
+    <button id="fetch-data">Fetch Data</button>
+
+    <table id="currency-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>USD</th>
+                <th>EUR</th>
+                <th>CAD</th>
+                <th>BGN</th>
+                <th>JPY</th>
+                <th>GBP</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+  </div>
+  <script src="currency.bundle.js"></script>
+  <script>
+    if (window.currencyApi) {
+      document.addEventListener('DOMContentLoaded', window.currencyApi.initCurrencyApi);
+    } else {
+      console.error('currencyApi module is not loaded!');
+    }
+  </script>
+</body>
+</html>
